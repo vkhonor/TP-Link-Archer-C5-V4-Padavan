@@ -1,23 +1,18 @@
-# Get latest zapret release tag without GitHub API
-ZAPRET_TAG="$(git ls-remote --tags --sort='v:refname' \
-  https://github.com/bol-van/zapret.git 'v[0-9]*' |
-  sed 's#.*refs/tags/##' |
-  grep -E '^v[0-9]+\.[0-9]+$' |
-  tail -1)"
+#!/bin/bash
 
-if [[ -z "$ZAPRET_TAG" ]]; then
-  echo "ERROR: Failed to get latest zapret release"
-  exit 1
-fi
+set -e
 
-SRC_VER="${ZAPRET_TAG#v}"
-
-echo "Latest zapret release: $ZAPRET_TAG"
-echo "Using SRC_VER: $SRC_VER"
-
-sed -i "s/^SRC_VER.*/SRC_VER = $SRC_VER/" \
+# Zapret version
+sed -i 's/^SRC_VER.*/SRC_VER = 72.13/' \
   padavan-ng/trunk/user/nfqws/Makefile
 
+# Install custom firmware-specific.patch
+mkdir -p padavan-ng/trunk/user/nfqws/patches
+
+cp firmware-specific.patch \
+  padavan-ng/trunk/user/nfqws/patches/firmware-specific.patch
+
+# Remove previously downloaded Zapret sources
 cd padavan-ng/trunk/user/nfqws
 
 find . -maxdepth 1 \
